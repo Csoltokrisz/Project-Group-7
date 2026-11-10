@@ -5,3 +5,5 @@ pip3 install pandas
 pip3 install numpy
 pip install seaborn
 pip install pathlib
+pip install scipy
+pip install Faker
