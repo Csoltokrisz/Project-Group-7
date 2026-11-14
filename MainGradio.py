@@ -2,6 +2,6 @@
 
 import gradio as gr
 
-with gr.Blocks() as main
+with gr.Blocks() as main:
     gr.Markdown("###Group 7 Dashboard")
 
