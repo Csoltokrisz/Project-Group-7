@@ -1,3 +1,4 @@
+#%% 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -5,6 +6,7 @@ from faker import Faker
 fake = Faker()
 import seaborn as sns
 import scipy as sc
+
 
 records = []
 for _ in range(100):
@@ -14,18 +16,28 @@ for _ in range(100):
     )
     records.append({
         "name": fake.name(),
-        "age": fake.random_int(min=18, max=70),
-        "annual_income": annual_income,
-        "monthly_expenses": monthly_expenses,
-    })
+         "age": fake.random_int(min=18, max=70),
+         "annual_income": annual_income,
+         "monthly_expenses": monthly_expenses,
+     })
 
 df = pd.DataFrame(records)
 
 fig, ax = plt.subplots(figsize=(6, 6))
 corr = df.corr(numeric_only=True)
 sns.heatmap(corr, annot=True, fmt=".2f",
-           cmap="RdBu",
-           vmin=-1, vmax=1,
-           center=0,
-           square=True, ax=ax)
+            cmap="RdBu",
+            vmin=-1, vmax=1,
+            center=0,
+            square=True, ax=ax)
+    
 plt.show()
+
+
+
+def hey():
+    heyo = "Heyyo"
+    return heyo
+
+print(hey())
+# %%
