@@ -1,0 +1,4 @@
+import plotly.express as px
+import pandas as pd
+fig = px.line(df, x='Date', y=['Inflation', 'Interest_Rate'], 
+              title='Inflation and Interest Rates Over Time')
