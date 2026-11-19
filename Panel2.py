@@ -21,7 +21,7 @@ houseinc = fred.get_series("MEHOINUSA672N", observation_start="1995-01-01", obse
 zhvi = fred.get_series("USAUCSFRCONDOSMSAMID", observation_start="1995-01-01", observation_end="2025-12-31")
 
 #Creating dataframe from the data
-testinho = pd.DataFrame({"Unemployment ratio": unemp, 
+heatdata = pd.DataFrame({"Unemployment ratio": unemp, 
                          "Disposable income": dispinc, 
                          "Minimum wage": minwage, 
                          "GDP": gdp, 
@@ -29,13 +29,14 @@ testinho = pd.DataFrame({"Unemployment ratio": unemp,
                          "Home value index": zhvi}, 
                          )
 
-#testinho.fillna(0, inplace=True)
-
 #Creataing correlation matrix
-corr0 = testinho.corr(numeric_only=True)
+corr0 = heatdata.corr(numeric_only=True)
 print(corr0)
 
-#Creating heatmap
+#Slider
+
+
+#Creating heatmap        addd layout thinggggg!!!
 heat = go.Heatmap(z=corr0.values,
         x=corr0.columns,
         y=corr0.index,
@@ -57,7 +58,7 @@ heatmap.show()
 
 #def panel2fig():
 #  fig, ax = plt.subplots(figsize=(6, 6))
-#  corr0 = testinho.corr(numeric_only=True)
+#  corr0 = heatdata.corr(numeric_only=True)
 #  sns.heatmap(corr0, annot=True, fmt=".2f",
 #              cmap="RdBu",
 #              vmin=-1, vmax=1,
