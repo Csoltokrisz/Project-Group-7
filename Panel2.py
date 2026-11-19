@@ -45,7 +45,9 @@ heat = go.Heatmap(z=corr0.values,
         zmid=0, 
         )
 
-heatmap = go.Figure(data=[heat])
+layout = go.Layout(xaxis_showgrid=False, yaxis_showgrid=False, yaxis_autorange="reversed")
+
+heatmap = go.Figure(data=[heat], layout=layout)
 
 heatmap.show()
 
