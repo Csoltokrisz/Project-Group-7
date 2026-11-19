@@ -21,18 +21,24 @@ gdp = fred.get_series("A939RX0Q048SBEA", observation_start="1995-01-01", observa
 houseinc = fred.get_series("MEHOINUSA672N", observation_start="1995-01-01", observation_end="2025-12-31")
 zhvi = fred.get_series("USAUCSFRCONDOSMSAMID", observation_start="1995-01-01", observation_end="2025-12-31")
 
-testinho = pd.DataFrame([unemp, dispinc, minwage, gdp, houseinc, zhvi])
+testinho = pd.DataFrame({"Unemployment": unemp, 
+                         "Disposable income": dispinc, 
+                         "Minimum wage": minwage, 
+                         "GDP": gdp, 
+                         "Household income": houseinc, 
+                         "Home value index": zhvi}, 
+                         )
 testinho.fillna(0, inplace=True)
 
+#print(testinho.head())
 corr0 = testinho.corr(numeric_only=True)
 print(corr0)
 
-
+#heat = go.Heatmap(corr0)
+#heat.show()
 #print(testinho)
-#Filter for 1995-2025
 
 
-#print(testinho)
 
 def panel2fig():
    fig, ax = plt.subplots(figsize=(6, 6))
