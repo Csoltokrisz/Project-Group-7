@@ -11,7 +11,6 @@ import plotly.graph_objects as go
 import plotly.express as px
 
 #Getting the data
-
 fred = Fred(api_key="8b4335685fcbc8639c71573ea4708762")
 
 unemp = fred.get_series("UNRATE", observation_start="1995-01-01", observation_end="2025-12-31")
@@ -21,67 +20,52 @@ gdp = fred.get_series("A939RX0Q048SBEA", observation_start="1995-01-01", observa
 houseinc = fred.get_series("MEHOINUSA672N", observation_start="1995-01-01", observation_end="2025-12-31")
 zhvi = fred.get_series("USAUCSFRCONDOSMSAMID", observation_start="1995-01-01", observation_end="2025-12-31")
 
-testinho = pd.DataFrame({"Unemployment": unemp, 
+#Creating dataframe from the data
+testinho = pd.DataFrame({"Unemployment ratio": unemp, 
                          "Disposable income": dispinc, 
                          "Minimum wage": minwage, 
                          "GDP": gdp, 
                          "Household income": houseinc, 
                          "Home value index": zhvi}, 
                          )
-testinho.fillna(0, inplace=True)
 
-#print(testinho.head())
+#testinho.fillna(0, inplace=True)
+
+#Creataing correlation matrix
 corr0 = testinho.corr(numeric_only=True)
 print(corr0)
 
-#heat = go.Heatmap(corr0)
-#heat.show()
-#print(testinho)
+#Creating heatmap
+heat = go.Heatmap(z=corr0.values,
+        x=corr0.columns,
+        y=corr0.index,
+        zmin=-1,
+        zmax=1,
+        zmid=0, 
+        )
+
+heatmap = go.Figure(data=[heat])
+
+heatmap.show()
+
+#Can we do 2000-2025 instead of 1995?
 
 
 
-def panel2fig():
-   fig, ax = plt.subplots(figsize=(6, 6))
-   corr0 = testinho.corr(numeric_only=True)
-   sns.heatmap(corr0, annot=True, fmt=".2f",
-               cmap="RdBu",
-               vmin=-1, vmax=1,
-               center=0,
-               square=True, ax=ax)
-           
-   return fig
 
-#panel2fig()
-#
-#def makepanel2():
-#   records = []
-#   for _ in range(100):
-#       annual_income = fake.random_int(min=25000, max=150000)
-#       monthly_expenses = round(
-#           annual_income / 12 * fake.pyfloat(min_value=0.3, max_value=0.7)
-#       )
-#       records.append({
-#           "name": fake.name(),
-#           "age": fake.random_int(min=18, max=70),
-#           "annual_income": annual_income,
-#           "monthly_expenses": monthly_expenses,
-#       })
-#
-#   df = pd.DataFrame(records)
-#
-#   fig, ax = plt.subplots(figsize=(6, 6))
-#   corr = df.corr(numeric_only=True)
-#   sns.heatmap(corr, annot=True, fmt=".2f",
-#               cmap="RdBu",
-#               vmin=-1, vmax=1,
-#               center=0,
-#               square=True, ax=ax)
-#       
-#   plt.show()
-#   return fig
-#
-#def hey():
-#   heyo = "Heyyo"
-#   return heyo
-#
+
+
+#def panel2fig():
+#  fig, ax = plt.subplots(figsize=(6, 6))
+#  corr0 = testinho.corr(numeric_only=True)
+#  sns.heatmap(corr0, annot=True, fmt=".2f",
+#              cmap="RdBu",
+#              vmin=-1, vmax=1,
+#              center=0,
+#              square=True, ax=ax)
+#          
+#  return fig
+
+
+
 # %%
