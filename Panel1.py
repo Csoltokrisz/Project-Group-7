@@ -60,6 +60,21 @@ df = pd.merge(rpp_df[["state", "year", "rent_rpp"]].dropna(),
                mhi_df[["state", "year", "median_household_income"]].dropna()
               ,on=["state", "year"], how="inner")
 
+year_median_income = df.groupby("year")["median_household_income"].transform("median")
+
+def affordability_evaluation(rent_rpp, median_household_income, year_median_income):
+    relative_income = median_household_income / year_median_income
+    relative_rent = rent_rpp / 100.00
+    ratio = relative_income / relative_rent
+
+    if ratio >= x
+      return "Less affordable"
+    elif ratio <= y
+      return "More affordable"
+    else:
+      return "Moderate"
+
+    
 
 if fred_api_key:
  print("Key found:", len(fred_api_key), "characters")
