@@ -27,11 +27,16 @@ heatdata = pd.DataFrame({"Unemployment ratio": unemp,
                          "GDP": gdp, 
                          "Household income": houseinc, 
                          "Home value index": zhvi}, 
-                         )
+)
+heatdata.index.name = "Year"
+
+
+
+print(heatdata)
 
 #Creataing correlation matrix
-corr0 = heatdata.corr(numeric_only=True)
-print(corr0)
+#corr0 = heatdata.corr(numeric_only=True)
+#print(corr0)
 
 #Slider
 
