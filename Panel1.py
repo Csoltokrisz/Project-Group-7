@@ -19,6 +19,12 @@ states = ["AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "DC", "FL", "GA",
 FRED_BASE = "https://api.stlouisfed.org/fred/"
 fred_api_key = os.environ.get("FRED_API_KEY")
 
+if fred_api_key:
+ print("Key found:", len(fred_api_key), "characters")
+else:
+ print("No key found. That's fine today:",
+"we'll use the offline sample.")
+
 rpp_rows=[]
 for state in states:
     SERIES_ID_RPP = f"{state}RPPSERVERENT"
@@ -60,27 +66,36 @@ df = pd.merge(rpp_df[["state", "year", "rent_rpp"]].dropna(),
                mhi_df[["state", "year", "median_household_income"]].dropna()
               ,on=["state", "year"], how="inner")
 
-year_median_income = df.groupby("year")["median_household_income"].transform("median")
+df["year_median_income"] = df.groupby("year")["median_household_income"].transform("median")
 
 def affordability_evaluation(rent_rpp, median_household_income, year_median_income):
     relative_income = median_household_income / year_median_income
     relative_rent = rent_rpp / 100.00
     ratio = relative_income / relative_rent
 
-    if ratio >= x
-      return "Less affordable"
-    elif ratio <= y
+    if ratio >= 1.10:
       return "More affordable"
+    elif ratio <= 0.90:
+      return "Less affordable"
     else:
       return "Moderate"
 
+df["affordability"] = df.apply(lambda row: affordability_evaluation(row["rent_rpp"], row["median_household_income"], row["year_median_income"]), axis=1)
+
+print(df[["state", "year", "rent_rpp", "median_household_income", "year_median_income", "affordability"]].head(30))
+
+df = df.sort_values(by=["year", "state"], ascending=[True, True])
+
+fig = px.choropleth(df, locations = "state", locationmode = "USA-states", 
+                     color = "rent_rpp", color_continuous_scale="RdYlGn_r", animation_frame="year", scope = "usa", 
+                     hover_name = "state", hover_data = {"rent_rpp" : ".1f",
+                    "median_household_income" : False, "affordability" : True, 
+                    "rent_rpp" : False, "year" : False})
+
+fig.show() 
+
     
 
-if fred_api_key:
- print("Key found:", len(fred_api_key), "characters")
-else:
- print("No key found. That's fine today:",
-"we'll use the offline sample.")
 
 
 
