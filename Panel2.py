@@ -36,6 +36,7 @@ heatdata = heatdata.loc[(heatdata.index >= 1995) & (heatdata.index <= 2025)]
 def masking(corr):
       mask = corr.values.copy()
       mask[np.tril_indices_from(mask, k=0)] = np.nan
+      mask[np.abs(mask) < 0.05] = np.nan
       return mask
 
 
@@ -124,7 +125,6 @@ heatmap.update_layout(
         }],
         plot_bgcolor="rgba(0,0,0,0)",
 )
-
 
 heatmap.show()
 
