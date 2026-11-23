@@ -68,31 +68,80 @@ df = pd.merge(rpp_df[["state", "year", "rent_rpp"]].dropna(),
 
 df["year_median_income"] = df.groupby("year")["median_household_income"].transform("median")
 
-def affordability_evaluation(rent_rpp, median_household_income, year_median_income):
-    relative_income = median_household_income / year_median_income
-    relative_rent = rent_rpp / 100.00
-    ratio = relative_income / relative_rent
+def affordability_evaluation(data: pd.DataFrame, high_threshold: float = 1.10,
+                             low_threshold: float = 0.90):
+    output = data.copy()
 
-    if ratio >= 1.10:
-      return "More affordable"
-    elif ratio <= 0.90:
-      return "Less affordable"
-    else:
-      return "Moderate"
+    relative_income = output["median_household_income"] / output["year_median_income"]
+    relative_rent = output["rent_rpp"] / 100.00
 
-df["affordability"] = df.apply(lambda row: affordability_evaluation(row["rent_rpp"], row["median_household_income"], row["year_median_income"]), axis=1)
+    output["affordability_ratio"] = relative_income / relative_rent
+    output["affordability_pct_rank_year"] = (
+        output.groupby("year")["affordability_ratio"].rank(pct=True, method="average") * 100)
 
-print(df[["state", "year", "rent_rpp", "median_household_income", "year_median_income", "affordability"]].head(30))
+    output["affordability"] = np.select(
+        [
+            output["affordability_ratio"] >= high_threshold,
+            output["affordability_ratio"] <= low_threshold
+        ],
+        [
+            "More Affordable",
+            "Less Affordable"
+        ],
+        default="Moderate"
+    )
+    return output
+
+df = affordability_evaluation(df)
+
+print(
+    df[
+        [
+            "state",
+            "year",
+            "rent_rpp",
+            "median_household_income",
+            "year_median_income",
+            "affordability_ratio",
+            "affordability_pct_rank_year",
+            "affordability",
+        ]
+    ]
+)
 
 df = df.sort_values(by=["year", "state"], ascending=[True, True])
 
-fig = px.choropleth(df, locations = "state", locationmode = "USA-states", 
-                     color = "rent_rpp", color_continuous_scale="RdYlGn_r", animation_frame="year", scope = "usa", 
-                     hover_name = "state", hover_data = {"rent_rpp" : ".1f",
-                    "median_household_income" : False, "affordability" : True, 
-                    "rent_rpp" : False, "year" : False})
+fig = px.choropleth(
+    df,
+    locations="state",
+    locationmode="USA-states",
+    scope="usa",
+    color="affordability_pct_rank_year",
+    range_color=[0, 100],
+    color_continuous_scale="RdYlGn",
+    animation_frame="year",
+    hover_name="state",
+    hover_data={
+        "state": False,
+        "year": False,
+        "affordability_pct_rank_year": ":.1f",
+        "affordability_ratio": ":.2f",
+        "affordability": True,
+        "rent_rpp": ":.1f",
+        "median_household_income": ":$,.0f",
+    },
+    labels={
+        "affordability_pct_rank_year": "Affordability Percentile (Yearly)",
+        "affordability_ratio": "Affordability Ratio",
+        "affordability": "Category",
+        "rent_rpp": "Rent RPP",
+        "median_household_income": "Median Household Income",
+    },
+)
 
-fig.show() 
+fig.show()
+
+                            
 
     
 
