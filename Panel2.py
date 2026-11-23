@@ -8,12 +8,21 @@ import os
 #Getting the data
 fred = Fred(api_key=os.environ.get("FRED_API_KEY"))
 
-series = {"Unemployment ratio": "UNRATE",
-        "Disposable income": "A229RX0",
-        "Minimum wage": "STTMINWGFG",
-        "GDP p.c.": "A939RX0Q048SBEA",
-        "Household income": "MEHOINUSA672N",
-        "Home value index": "USAUCSFRCONDOSMSAMID"
+series = {"Unemployment Ratio": "UNRATE",
+        "Disposable Income": "A229RX0",
+        "Personal Saving Rate": "PSAVERT",
+        "Minimum Wage": "STTMINWGFG",
+        "GDP per Capita": "A939RX0Q048SBEA",
+        "Household Income": "MEHOINUSA672N",
+        "Home Value Index": "USAUCSFRCONDOSMSAMID",
+        "30-Year Mortgage Rate": "MORTGAGE30US",
+        "GINI Index": "SIPOVGINIUSA",
+        "Consumer Price Index (CPI)": "CPIAUCSL",
+        "Core CPI": "CPILFESL",
+        "Food CPI": "CPIUFDSL",
+        "Energy CPI": "CPIENGSL",
+        "Household Debt Service Ratio": "TDSP",
+        "Federal Funds Rate": "FEDFUNDS"
         }
 
 series_data = {}
