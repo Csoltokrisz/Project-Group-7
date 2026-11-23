@@ -31,10 +31,6 @@ heatdata.index.name = "Year"
 heatdata = heatdata.loc[(heatdata.index >= 1995) & (heatdata.index <= 2025)]
 
 
-#Checking data ------------------------------ delete
-#print(heatdata)
-
-
 #Creating heatmap
 #Masking redundant data
 def masking(corr):
@@ -73,7 +69,7 @@ for end_year in years:
                     zmax=1,
                     zmid=0,
                     colorbar={"title": "Correlation"},
-                    hovertemplate="%{y} vs %{x}<br>Correlation: %{z:.3f}<extra></extra>", 
+                    hovertemplate="%{y} - %{x}<br>Correlation: %{z:.3f}<extra></extra>", 
               )],
               layout={"title": f"Correlation Through Year {end_year}"}
         ))
@@ -92,12 +88,12 @@ heat = go.Heatmap(
         zmax=1,
         zmid=0, 
         colorbar={"title": "Correlation"},
-        hovertemplate="%{y} vs %{x}<br>Correlation: %{z:.3f}<extra></extra>", 
+        hovertemplate="%{y} - %{x}<br>Correlation: %{z:.3f}<extra></extra>", 
         hoverongaps=False
         )
 
-#Layout
 
+#Layout
 layout = go.Layout(title="Correlation Through Year 2025",
                 xaxis_showgrid=False, 
                 yaxis_showgrid=False, 
@@ -105,11 +101,10 @@ layout = go.Layout(title="Correlation Through Year 2025",
 
 
 #Heatmap itself
-
 heatmap = go.Figure(data=[heat], layout=layout, frames=frames)
 
-#Updating heatmap
 
+#Updating heatmap
 heatmap.update_layout(
       sliders=[{
             "active": len(years) - 1,
@@ -129,6 +124,7 @@ heatmap.update_layout(
         }],
         plot_bgcolor="rgba(0,0,0,0)",
 )
+
 
 heatmap.show()
 
