@@ -103,3 +103,63 @@ def make_figure(cat, mode, kind, compare, start, end):
                             marker=dict(size=6),
                             fill=None if compare else "tozeroy",
                             hovertemplate=hover)
+    # axis labels depend on what is being shown
+    y_axis = dict(gridcolor="#eeeeee", zeroline=False)
+    if as_percent:
+        y_axis["title"] = f"% change since {start}"
+        y_axis["ticksuffix"] = "%"
+    elif cat == "fuel":
+        y_axis["title"] = "$ per gallon"
+        y_axis["tickprefix"] = "$"
+    else:
+        y_axis["title"] = "Index (1982-84 = 100)"
+
+    fig.update_layout(
+        template="plotly_white", height=420, margin=dict(l=10, r=10, t=10, b=10),
+        hovermode="x unified", dragmode="pan", showlegend=compare,
+        legend=dict(orientation="h", y=1.08), barmode="group",
+        xaxis=dict(range=[start - 0.5, end + 0.5], showgrid=False,
+                   dtick=1 if end - start <= 15 else None),
+        yaxis=y_axis,
+    )
+    return fig
+
+
+def make_stats(cat, start, end):
+    data = get_window(cat, start, end)
+    n_years = len(data) - 1
+    change = (data[-1] / data[0] - 1) * 100
+    per_year = ((data[-1] / data[0]) ** (1 / n_years) - 1) * 100
+    peak_year = start + data.index(max(data))
+
+    cards = [
+        (f"{start} value", show(cat, data[0])),
+        (f"{end} value", show(cat, data[-1])),
+        ("Total change", f"{change:+.1f}%"),
+        ("Avg. per year", f"{per_year:+.2f}%"),
+        ("Peak year", str(peak_year)),
+    ]
+    return [html.Div([html.Small(title), html.B(val)], className="stat") for title, val in cards]
+
+
+STYLE = """
+body{margin:0;background:#f6f5f1;color:#1c1c1a;font:15px system-ui,'Segoe UI',Roboto,sans-serif;padding:20px}
+.panel{max-width:980px;margin:0 auto;background:#fff;border:1px solid #e4e2da;border-radius:16px;padding:22px}
+h1{font-size:22px;margin:0 0 4px}
+.sub{color:#6b6a64;margin:0 0 18px;font-size:14px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
+.grow{flex:1}
+.seg{display:inline-flex;border:1px solid #e4e2da;border-radius:10px;overflow:hidden}
+.seg label{padding:8px 16px;cursor:pointer;margin:0}
+.seg label+label{border-left:1px solid #e4e2da}
+.seg input{display:none}
+.seg label:has(input:checked){background:#2f6fed;color:#fff}
+.seg.big label{padding:10px 20px;font-weight:600}
+.btn{font:inherit;background:none;border:1px solid #e4e2da;border-radius:10px;padding:7px 12px;cursor:pointer}
+.btn:hover{background:#f6f5f1}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:14px 0}
+.stat{background:#f6f5f1;border-radius:12px;padding:10px 14px}
+.stat small{color:#6b6a64;display:block;font-size:12px}
+.stat b{font-size:19px}
+.small{color:#6b6a64;font-size:12.5px;margin-top:14px}
+"""
