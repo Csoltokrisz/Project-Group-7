@@ -40,32 +40,32 @@ from plotly.subplots import make_subplots
 
 def make_plot(df):
     fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.08,
-                        subplot_titles=("Inflation Rate (%)", "Interest Rate (%)<b>"))
+                        subplot_titles=("<b>Inflation Rate (%)</b>", "<b>Interest Rate (%)</b>"))
 
     for i, yr in enumerate(range(1995, 2026)):
-        c = "rgba(135, 206, 250, 0.18)" if i % 2 == 0 else "rgba(25, 118, 210, 0.06)"
+        c = "rgba(180, 155, 130, 0.10)" if i % 2 == 0 else "rgba(180, 155, 130, 0.03)"
         fig.add_vrect(x0=yr - 0.5, x1=yr + 0.5, fillcolor=c, line_width=0, layer="below", row=1, col=1)
         fig.add_vrect(x0=yr - 0.5, x1=yr + 0.5, fillcolor=c, line_width=0, layer="below", row=2, col=1)
 
     fig.add_trace(go.Scatter(x=df['Year'], y=df['Inflation Rate (%)'], mode='lines+markers',
-                             name='Inflation Rate (%)', line=dict(color='#0288D1', width=2.5),
-                             marker=dict(color='#01579B', size=6)), row=1, col=1)
+                             name='Inflation Rate (%)', line=dict(color='#9E2A2B', width=2.5),
+                             marker=dict(color='#6B1819', size=6)), row=1, col=1)
 
     fig.add_trace(go.Scatter(x=df['Year'], y=df['Interest Rate (%)'], mode='lines+markers',
-                             name='Interest Rate (%)', line=dict(color='#29B6F6', width=2.5),
-                             marker=dict(color='#0277BD', size=6)), row=2, col=1)
+                             name='Interest Rate (%)', line=dict(color='#1D4E89', width=2.5),
+                             marker=dict(color='#102A43', size=6)), row=2, col=1)
 
     bands = [
         dict(type="rect", xref="x", yref="paper", x0=2007, x1=2009, y0=0, y1=1,
-             fillcolor="rgba(3, 169, 244, 0.24)", line=dict(color="#0288D1", width=1), visible=False),
+             fillcolor="rgba(158, 42, 43, 0.16)", line=dict(color="#9E2A2B", width=1), visible=False),
         dict(type="rect", xref="x", yref="paper", x0=2001, x1=2021, y0=0, y1=1,
-             fillcolor="rgba(79, 195, 247, 0.18)", line=dict(color="#0277BD", width=1, dash="dot"), visible=False),
+             fillcolor="rgba(29, 78, 137, 0.10)", line=dict(color="#1D4E89", width=1, dash="dot"), visible=False),
         dict(type="rect", xref="x", yref="paper", x0=2000.6, x1=2001.4, y0=0, y1=1,
-             fillcolor="rgba(2, 119, 189, 0.28)", line=dict(color="#01579B", width=1.5), visible=False),
+             fillcolor="rgba(107, 24, 25, 0.22)", line=dict(color="#6B1819", width=1.5), visible=False),
         dict(type="rect", xref="x", yref="paper", x0=2020, x1=2021, y0=0, y1=1,
-             fillcolor="rgba(129, 212, 250, 0.28)", line=dict(color="#0288D1", width=1), visible=False),
+             fillcolor="rgba(217, 119, 6, 0.16)", line=dict(color="#B45309", width=1), visible=False),
         dict(type="rect", xref="x", yref="paper", x0=2007.85, x1=2008.15, y0=0, y1=1,
-             fillcolor="rgba(1, 87, 155, 0.35)", line=dict(color="#01579B", width=2), visible=False),
+             fillcolor="rgba(16, 42, 67, 0.28)", line=dict(color="#102A43", width=2), visible=False),
     ]
 
     base = len(fig.layout.shapes)
@@ -82,20 +82,22 @@ def make_plot(df):
     ]
 
     fig.update_layout(
-        title="Inflation and Interest Rates (1995-2025)</b>",
-        plot_bgcolor="#F0F8FF",
-        paper_bgcolor="#E6F4FF",
-        font=dict(color="#0B2545"),
+        title="<b>Inflation and Interest Rates (1995-2025)</b>",
+        plot_bgcolor="#FAF0E6",
+        paper_bgcolor="#FFF8F0",
+        font=dict(color="#1F2933"),
         hovermode="x unified",
-        xaxis2=dict(range=[1995, 2025], dtick=2, rangeslider=dict(visible=True, range=[1995, 2025])),
-        updatemenus=[dict(type="buttons", direction="right", x=0, y=1.15, xanchor="left", buttons=btns)],
+        xaxis2=dict(range=[1995, 2025], dtick=2, rangeslider=dict(visible=True, range=[1995, 2025], bgcolor="#FAF0E6")),
+        updatemenus=[dict(type="buttons", direction="right", x=0, y=1.15, xanchor="left", buttons=btns,
+                          bgcolor="#F2E5D7", bordercolor="#8C7A6B", font=dict(color="#1F2933"))],
     )
 
-    fig.update_yaxes(title_text="%", row=1, col=1, gridcolor="#B3E5FC")
-    fig.update_yaxes(title_text="%", row=2, col=1, gridcolor="#B3E5FC")
-    fig.update_xaxes(gridcolor="#B3E5FC")
+    fig.update_yaxes(title_text="%", row=1, col=1, gridcolor="#E2D6C8")
+    fig.update_yaxes(title_text="%", row=2, col=1, gridcolor="#E2D6C8")
+    fig.update_xaxes(gridcolor="#E2D6C8")
 
     return fig
+
 
 df = get_economic_data()
 fig = make_plot(df)
