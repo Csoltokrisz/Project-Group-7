@@ -2,7 +2,9 @@ import requests
 import plotly.graph_objects as go
 from dash import Dash, dcc, html, Input, Output, ctx, no_update
 
-API_KEY = "8362d68825d29edea77b4e522256e5cb"
+API_KEY = os.environ.get("FRED_API_KEY")
+if not API_KEY:
+    raise RuntimeError("Missing FRED_API_KEY environment variable.")
 URL = "https://api.stlouisfed.org/fred/series/observations"
 
 # FRED series for each category
