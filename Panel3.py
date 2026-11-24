@@ -5,4 +5,4 @@ fig.update_layout(
   xaxis_title="Date",
   yaxis_title="Rate(%)",
   legend_title="Metrics",
-  showlegend=Tru
+  showlegend=True
