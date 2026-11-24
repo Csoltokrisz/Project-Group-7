@@ -139,6 +139,36 @@ fig = px.choropleth(
     },
 )
 
+fig.update_traces(
+    marker_line_color="#ffffff",
+    marker_line_width=0.7,
+)
+
+fig.update_layout(
+    template="plotly_white",
+    title=dict(
+        text="U.S. Rental Affordability Percentile Over Time",
+        x=0.03,
+        y=0.96,
+        font=dict(size=18, family="Arial, sans-serif", color="#111827"),
+    ),
+    font=dict(family="Arial, sans-serif", size=12, color="#1f2937"),
+    geo=dict(
+        scope="usa",
+        showlakes=True,
+        lakecolor="#f8fafc",
+        bgcolor="rgba(0,0,0,0)",
+    ),
+    coloraxis_colorbar=dict(
+        title=dict(text="Percentile", side="right"),
+        thickness=12,
+        len=0.72,
+        outlinewidth=0,
+        ticks="outside",
+    ),
+    margin=dict(t=65, b=75, l=15, r=15),
+)
+
 fig.show()
 
                             
