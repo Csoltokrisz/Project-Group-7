@@ -40,7 +40,7 @@ from plotly.subplots import make_subplots
 
 def make_plot(df):
     fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.08,
-                        subplot_titles=("Inflation Rate (%)", "Interest Rate (%)"))
+                        subplot_titles=("Inflation Rate (%)", "Interest Rate (%)<b>"))
 
     for i, yr in enumerate(range(1995, 2026)):
         c = "rgba(135, 206, 250, 0.18)" if i % 2 == 0 else "rgba(25, 118, 210, 0.06)"
@@ -82,7 +82,7 @@ def make_plot(df):
     ]
 
     fig.update_layout(
-        title="Inflation and Interest Rates (1995-2025)",
+        title="Inflation and Interest Rates (1995-2025)</b>",
         plot_bgcolor="#F0F8FF",
         paper_bgcolor="#E6F4FF",
         font=dict(color="#0B2545"),
