@@ -65,15 +65,31 @@ def make_plot(df):
     fig.update_layout(shapes=list(fig.layout.shapes) + bands)
 
     btns = [
-        dict(label="Clear", method="relayout", args=[{f"shapes[{base + k}].visible": False for k in range(len())bands
-                                                     }]),
-        dict(label='Crash", method="relayout", args=[{f"shapes[{base + 0}].visible": True]),
-        dict(label="Wars", method="relayout", args=[{f"shapes[{base + 1}].visible": True]),
-        dict(label="9/11", method="relayout", args=[{f"shapes[{base + 2}].visible": True]),
-        dict(label="COVID19", method="relayout", args=[{f"shapes[{base + 3}].visible": True]),
-        dict(label="Financial Crisis Act", method="relayout", args=[{f"shapes[{base + 4}].visible": True}]),
-        dict(label="All", method="relayout", args=[{f"shapes[{base + k}].visible": True for k in range(len(bands))}]),
+        dict(label="Clear", method="relayout", args=[{f"shapes[{base + k}].visible": False for k in range(len(bands))}]),
+        dict(label="Financial Crash", method="relayout", args=[{f"shapes[{basse + 0}].visible": True}]),
+        dict(label="Wars", method="relayout", args=[{f"shapes[{base + 1}].visible": True}]),
+        dict(label="9/11", method="relayout", args=[{f"shapes[{base + 2}].visible": True}]),
+        dict(label="COVID", method="relayout", args=[{f"shapes[{base + 3}].visible": True}]),
+        dict(label="Financial Crisis Act", method="relayout", args=[{f"shapes[{base + 4}].visible": True}),
+    dict(label="All", method="relayout", args=[{f"shapes[{base + k}].visible": True for k in range(len(bands))}]),
     ]
+
+    fig.update_layout(
+        title="Inflation and Interest Rates (1995-2025)",
+        plot_bgcolor="#F0F8FF",
+        paper_bycolor="#E6F4FF",
+        font=dict(color="#0B2545"),
+        hovermode="x unified",
+        xaxis2=dict(range=[1995, 2025], dtick=2, rangeslider=dict(visible=True, range=[1995, 2025])),
+        updatemenu=[dict(type="buttons", direction="right", x=0, y=1.15, xanchor="left", buttons=btns)],
+
+    fig.update_yaxes(title_text="%", row=1, col=1, gridcolor="#B3E5FC")
+    fig.update_yaxes(title_text="%", row=2, col=1, gridcolor="#B3E5FC")
+    fig.update_xaxes(gridcolor="#B3E5FC")
+
+df = get_economic_data()
+fig = make_plot(df)
+
 
     
    
