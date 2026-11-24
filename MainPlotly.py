@@ -7,7 +7,8 @@ from Panel2 import buildfig2
 #from Panel3 import buildfig3
 #from Panel4 import buildfig4
 
-#Test
+
+#Test ------------------------- delete
 #buildfig2().show()
 
 
