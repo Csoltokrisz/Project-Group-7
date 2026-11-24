@@ -1,8 +1,14 @@
-import os
 import pandas as pd
 def get_economic_data():
-    cpi = pd.read_csv("https://fred.stlouisfed.org/graph/fredgraph.csv?id=CPIAUCSL")
-    rates = pd.read_csv("https://fred.stlouisfed.org/graph/fredgraph.csv?id=FEDFUNDS")
+    try:
+        cpi = pd.read_csv("https://fred.stlouisfed.org/graph/fredgraph.csv?id=CPIAUCSL")
+        rates = pd.read_csv("https://fred.stlouisfed.org/graph/fredgraph.csv?id=FEDFUNDS")
+        cpi.to_csv("cpi_cache.csv", index=False)
+        rates.to_csv("rates_cache.csv", index=False)
+    except Exception:
+        cpi = pd.read_csv("cpi_cache.csv")
+        rates = pd.read_csv("rates_cache.csv")
+    
     cpi['observation_date'] = pd.to_datetime(cpi['observation_date'],errors='coerce')
     rates['observation_date'] = pd.to_datetime(rates['observation_date'],errors='coerce')
     cpi['CPIAUCSL'] = pd.to_numeric(cpi['CPIAUCSL'], errors='coerce')
@@ -16,10 +22,8 @@ def get_economic_data():
     rates = rates[(rates['Year'] >= 1995) & (rates['Year'] <= 2025)]
     
     annual_cpi = cpi.groupby('Year')['CPIAUCSL'].mean().reset_index()
-
     annual_cpi['Inflation Rate (%)'] = annual_cpi['CPIAUCSL'].pct_change() * 100
     annual_cpi = annual_cpi[annual_cpi['Year'] >= 1995]
-
     annual_rates = rates.groupby('Year')['FEDFUNDS'].mean().reset_index()
     annual_rates.rename(columns={'FEDFUNDS': 'Interest Rate (%)'}, inplace=True)
     
@@ -27,7 +31,9 @@ def get_economic_data():
                   annual_rates[['Year', 'Interest Rate (%)']], 
                   on='Year')
     
-    return df.dropna().reset_index(drop=True)
+    out = df.dropna().reset_index(drop=True)
+    out.to_csv("fred_macro_cache.csv", index=False)
+    return out
 
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
