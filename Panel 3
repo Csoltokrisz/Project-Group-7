@@ -1,0 +1,105 @@
+import requests
+import plotly.graph_objects as go
+from dash import Dash, dcc, html, Input, Output, ctx, no_update
+
+API_KEY = "8362d68825d29edea77b4e522256e5cb"
+URL = "https://api.stlouisfed.org/fred/series/observations"
+
+# FRED series for each category
+SERIES = {
+    "housing": {
+        "id": "CUUR0000SAH1",   # CPI shelter
+        "label": "Housing (CPI Shelter index)",
+        "color": "#2f6fed",
+        "text": "Shelter costs climbed steadily, flattened after the 2008 housing crash, "
+                "then jumped in 2022-24 as rents and home prices rose.",
+    },
+    "food": {
+        "id": "CPIUFDNS",       # CPI food (not seasonally adjusted)
+        "label": "Food (CPI Food index)",
+        "color": "#2f9e5b",
+        "text": "Food prices rose slowly for most of the period, with spikes in 2008 and 2022.",
+    },
+    "fuel": {
+        "id": "GASREGW",        # weekly regular gasoline price, $/gallon
+        "label": "Fuel (regular gasoline, $/gal)",
+        "color": "#e0782a",
+        "text": "Fuel is the most volatile of the three, peaking in 2008, 2011-14 and 2022 "
+                "and dropping sharply in 2009, 2015-16 and 2020.",
+    },
+}
+
+
+def get_yearly_data(series_id):
+    """Ask FRED for the yearly average of a series and return {year: value}."""
+    params = {
+        "series_id": series_id,
+        "api_key": API_KEY,
+        "file_type": "json",
+        "observation_start": "1995-01-01",
+        "frequency": "a",
+        "aggregation_method": "avg",
+    }
+    response = requests.get(URL, params=params, timeout=20)
+    if response.status_code != 200:
+        raise RuntimeError(f"FRED error for {series_id}: {response.text}")
+
+    result = {}
+    for obs in response.json()["observations"]:
+        if obs["value"] != ".":          # FRED uses "." for missing values
+            result[int(obs["date"][:4])] = float(obs["value"])
+    return result
+
+
+# download everything once when the app starts
+raw = {name: get_yearly_data(info["id"]) for name, info in SERIES.items()}
+years = sorted(set(raw["housing"]) & set(raw["food"]) & set(raw["fuel"]))
+FIRST, LAST = years[0], years[-1]
+values = {name: [raw[name][y] for y in years] for name in SERIES}
+
+PRESETS = {
+    "p-all": (FIRST, LAST, "All"),
+    "p-1": (FIRST, FIRST + 10, "1995-05"),
+    "p-2": (2005, 2015, "2005-15"),
+    "p-3": (LAST - 10, LAST, f"{LAST - 10}-{LAST % 100}"),
+    "p-4": (2019, LAST, "Post-2019"),
+}
+
+
+def get_window(cat, start, end):
+    return values[cat][start - FIRST: end - FIRST + 1]
+
+
+def show(cat, x):
+    if cat == "fuel":
+        return f"${x:.2f}"
+    return f"{x:.1f}"
+
+
+def make_figure(cat, mode, kind, compare, start, end):
+    as_percent = mode == "pct" or compare
+    cats = list(SERIES) if compare else [cat]
+    x = list(range(start, end + 1))
+
+    fig = go.Figure()
+    for c in cats:
+        data = get_window(c, start, end)
+        y = [(v / data[0] - 1) * 100 for v in data] if as_percent else data
+        name = SERIES[c]["label"]
+        color = SERIES[c]["color"]
+
+        if as_percent:
+            hover = "%{x}: %{y:+.1f}%<extra>" + name + "</extra>"
+        elif c == "fuel":
+            hover = "%{x}: $%{y:.2f}<extra>" + name + "</extra>"
+        else:
+            hover = "%{x}: %{y:.1f}<extra>" + name + "</extra>"
+
+        if kind == "bar":
+            fig.add_bar(x=x, y=y, name=name, marker_color=color, hovertemplate=hover)
+        else:
+            fig.add_scatter(x=x, y=y, name=name, mode="lines+markers",
+                            line=dict(color=color, width=3, shape="spline"),
+                            marker=dict(size=6),
+                            fill=None if compare else "tozeroy",
+                            hovertemplate=hover)
