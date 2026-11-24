@@ -78,6 +78,7 @@ for end_year in years:
                     zmin=-1,
                     zmax=1,
                     zmid=0,
+                    colorscale="RdYlGn",
                     colorbar={"title": "Correlation"},
                     hovertemplate="%{y} - %{x}<br>Correlation: %{z:.3f}<extra></extra>", 
               )],
@@ -97,6 +98,7 @@ heat = go.Heatmap(
         zmin=-1,
         zmax=1,
         zmid=0, 
+        colorscale="RdYlGn",
         colorbar={"title": "Correlation"},
         hovertemplate="%{y} - %{x}<br>Correlation: %{z:.3f}<extra></extra>", 
         hoverongaps=False
