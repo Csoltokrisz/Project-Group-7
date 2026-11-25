@@ -5,9 +5,7 @@ def get_economic_data():
         rates = pd.read_csv("https://fred.stlouisfed.org/graph/fredgraph.csv?id=FEDFUNDS")
         cpi.to_csv("cpi_cache.csv", index=False)
         rates.to_csv("rates_cache.csv", index=False)
-    except Exception:
-        cpi = pd.read_csv("cpi_cache.csv")
-        rates = pd.read_csv("rates_cache.csv")
+    
     
     cpi['observation_date'] = pd.to_datetime(cpi['observation_date'],errors='coerce')
     rates['observation_date'] = pd.to_datetime(rates['observation_date'],errors='coerce')
@@ -56,15 +54,23 @@ def make_plot(df):
                              marker=dict(color='#102A43', size=6)), row=2, col=1)
 
     bands = [
-        dict(type="rect", xref="x", yref="paper", x0=2007, x1=2009, y0=0, y1=1,
+        # 0: Financial Crash (Great Recession: Dec 2007 – Jun 2009)
+        dict(type="rect", xref="x", yref="paper", x0=2007.9, x1=2009.5, y0=0, y1=1,
              fillcolor="rgba(158, 42, 43, 0.16)", line=dict(color="#9E2A2B", width=1), visible=False),
-        dict(type="rect", xref="x", yref="paper", x0=2001, x1=2021, y0=0, y1=1,
-             fillcolor="rgba(29, 78, 137, 0.10)", line=dict(color="#1D4E89", width=1, dash="dot"), visible=False),
-        dict(type="rect", xref="x", yref="paper", x0=2000.6, x1=2001.4, y0=0, y1=1,
+        # 1: Afghanistan War (Oct 2001 – Aug 2021)
+        dict(type="rect", xref="x", yref="paper", x0=2001.8, x1=2021.6, y0=0, y1=1,
+             fillcolor="rgba(29, 78, 137, 0.08)", line=dict(color="#1D4E89", width=1, dash="dot"), visible=False),
+        # 2: Iraq War (Mar 2003 – Dec 2011)
+        dict(type="rect", xref="x", yref="paper", x0=2003.2, x1=2011.9, y0=0, y1=1,
+             fillcolor="rgba(44, 110, 73, 0.10)", line=dict(color="#2C6E49", width=1, dash="dash"), visible=False),
+        # 3: 9/11 (Sep 2001)
+        dict(type="rect", xref="x", yref="paper", x0=2001.5, x1=2001.9, y0=0, y1=1,
              fillcolor="rgba(107, 24, 25, 0.22)", line=dict(color="#6B1819", width=1.5), visible=False),
+        # 4: COVID (2020)
         dict(type="rect", xref="x", yref="paper", x0=2020, x1=2021, y0=0, y1=1,
              fillcolor="rgba(217, 119, 6, 0.16)", line=dict(color="#B45309", width=1), visible=False),
-        dict(type="rect", xref="x", yref="paper", x0=2007.85, x1=2008.15, y0=0, y1=1,
+        # 5: Emergency Economic Stabilization Act / TARP (Oct 2008)
+        dict(type="rect", xref="x", yref="paper", x0=2008.7, x1=2009.0, y0=0, y1=1,
              fillcolor="rgba(16, 42, 67, 0.28)", line=dict(color="#102A43", width=2), visible=False),
     ]
 
@@ -74,13 +80,13 @@ def make_plot(df):
     btns = [
         dict(label="Clear", method="relayout", args=[{f"shapes[{base + k}].visible": False for k in range(len(bands))}]),
         dict(label="Financial Crash", method="relayout", args=[{f"shapes[{base + 0}].visible": True}]),
-        dict(label="Wars", method="relayout", args=[{f"shapes[{base + 1}].visible": True}]),
-        dict(label="9/11", method="relayout", args=[{f"shapes[{base + 2}].visible": True}]),
-        dict(label="COVID", method="relayout", args=[{f"shapes[{base + 3}].visible": True}]),
-        dict(label="Financial Crisis Act", method="relayout", args=[{f"shapes[{base + 4}].visible": True}]),
+        dict(label="Afghanistan War", method="relayout", args=[{f"shapes[{base + 1}].visible": True}]),
+        dict(label="Iraq War", method="relayout", args=[{f"shapes[{base + 2}].visible": True}]),
+        dict(label="9/11", method="relayout", args=[{f"shapes[{base + 3}].visible": True}]),
+        dict(label="COVID", method="relayout", args=[{f"shapes[{base + 4}].visible": True}]),
+        dict(label="TARP (Oct 2008)", method="relayout", args=[{f"shapes[{base + 5}].visible": True}]),
         dict(label="All", method="relayout", args=[{f"shapes[{base + k}].visible": True for k in range(len(bands))}]),
     ]
-
     fig.update_layout(
         title="<b>Inflation and Interest Rates (1995-2025)</b>",
         plot_bgcolor="#FAF0E6",
