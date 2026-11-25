@@ -10,10 +10,10 @@ def load_series(url,cache_path, col):
                 pass
         return df
     except Exception:
-                return pd.read_csv(cache_path)
+        return pd.read_csv(cache_path)
 
 def get_economic_data():
-cpi = load_series(
+    cpi = load_series(
         "https://fred.stlouisfed.org/graph/fredgraph.csv?id=CPIAUCSL",
         "cpi_cache.csv",
         "CPIAUCSL",
