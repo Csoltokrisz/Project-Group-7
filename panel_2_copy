@@ -1,0 +1,136 @@
+# %%
+import numpy as np
+import pandas as pd
+from fredapi import Fred
+import plotly.graph_objects as go
+
+# 1. Define your API key BEFORE initializing Fred
+API_KEY = "key"
+fred_client = Fred(api_key=API_KEY)
+
+series = {
+    "Unemployment Ratio": "UNRATE",
+    "Disposable Income": "A229RX0",
+    "Personal Saving Rate": "PSAVERT",
+    "Minimum Wage": "STTMINWGFG",
+    "GDP per Capita": "A939RX0Q048SBEA",
+    "Household Income": "MEHOINUSA672N",
+    "Home Value Index": "USAUCSFRCONDOSMSAMID",
+    "30-Year Mortgage Rate": "MORTGAGE30US",
+    "GINI Index": "SIPOVGINIUSA",
+    "Consumer Price Index (CPI)": "CPIAUCSL",
+    "Core CPI": "CPILFESL",
+    "Food CPI": "CPIUFDSL",
+    "Energy CPI": "CPIENGSL",
+    "Household Debt Service Ratio": "TDSP",
+    "Federal Funds Rate": "FEDFUNDS",
+}
+
+series_data = {}
+for serio, series_id in series.items():
+    # 2. Use fred_client consistently here
+    values = fred_client.get_series(series_id, observation_end="2025-12-31")
+    values = pd.to_numeric(values, errors="coerce").dropna()
+    annual_values = values.resample("Y").mean()
+    annual_values.index = annual_values.index.year
+    series_data[serio] = annual_values
+
+# Creating dataframe from the data
+heatdata = pd.DataFrame(series_data)
+heatdata.index.name = "Year"
+heatdata = heatdata.loc[(heatdata.index >= 1995) & (heatdata.index <= 2025)]
+
+
+# Masking redundant data
+def masking(corr):
+    mask = corr.values.copy()
+    mask[np.tril_indices_from(mask, k=0)] = np.nan
+    mask[np.abs(mask) < 0.05] = np.nan
+    return mask
+
+
+# Heatmap text
+def heatmaptext(mask):
+    return [
+        [f"{value:.2f}" if np.isfinite(value) else "" for value in row]
+        for row in mask
+    ]
+
+
+# Helper to build consistent heatmap traces for both initial state and frames
+def make_heatmap_trace(end_year):
+    sub_df = heatdata.loc[heatdata.index <= end_year]
+    corr = sub_df.corr(numeric_only=True, min_periods=3)
+    corr = corr.reindex(index=heatdata.columns, columns=heatdata.columns)
+    masked_values = masking(corr)
+
+    return go.Heatmap(
+        z=masked_values,
+        x=corr.columns,
+        y=corr.index,
+        text=heatmaptext(masked_values),
+        texttemplate="%{text}",
+        zmin=-1,
+        zmax=1,
+        zmid=0,
+        colorscale="RdYlGn",
+        colorbar={"title": "Correlation"},
+        hovertemplate="%{y} - %{x}<br>Correlation: %{z:.3f}<extra></extra>",
+        hoverongaps=False,
+    )
+
+
+years = list(range(1997, 2026))
+frames = [
+    go.Frame(
+        name=str(end_year),
+        data=[make_heatmap_trace(end_year)],
+        traces=[0],
+        layout={"title": {"text": f"Correlation Heatmap (1995–{end_year})"}},
+    )
+    for end_year in years
+]
+
+heat = make_heatmap_trace(years[-1])
+
+layout = go.Layout(
+    title={"text": f"Correlation Heatmap (1995–{years[-1]})"},
+    xaxis_showgrid=False,
+    yaxis_showgrid=False,
+    yaxis_autorange="reversed",
+    plot_bgcolor="rgba(0,0,0,0)",
+)
+
+
+def buildfig2():
+    heatmap = go.Figure(data=[heat], layout=layout, frames=frames)
+    heatmap.update_layout(
+        sliders=[
+            {
+                "active": len(years) - 1,
+                "currentvalue": {"prefix": "Correlation Through Year: "},
+                "pad": {"t": 100},
+                "steps": [
+                    {
+                        "label": str(year),
+                        "method": "animate",
+                        "args": [
+                            [str(year)],
+                            {
+                                "mode": "immediate",
+                                "frame": {"duration": 0, "redraw": True},
+                                "transition": {"duration": 0},
+                            },
+                        ],
+                    }
+                    for year in years
+                ],
+            }
+        ]
+    )
+    return heatmap
+
+
+if __name__ == "__main__":
+    buildfig2().show()
+# %%
