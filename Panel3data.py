@@ -1,8 +1,30 @@
 import pandas as pd
+
+def load_series(url,cache_path, col):
+    try:
+        df = pd.read_csv(url)
+        if not df.empty and {"observation date", col}.issubset(df.columns):
+            try:
+                df.to_csv(cache_path, index=False)
+            except OSError:
+                pass
+                return df
+            except Exception:
+                return pd.read_csv(cache_path)
+
 def get_economic_data():
     try:
-        cpi = pd.read_csv("https://fred.stlouisfed.org/graph/fredgraph.csv?id=CPIAUCSL")
-        rates = pd.read_csv("https://fred.stlouisfed.org/graph/fredgraph.csv?id=FEDFUNDS")
+            cpi = load_series(
+        "https://fred.stlouisfed.org/graph/fredgraph.csv?id=CPIAUCSL",
+        "cpi_cache.csv",
+        "CPIAUCSL",
+    )
+    rates = load_series(
+        "https://fred.stlouisfed.org/graph/fredgraph.csv?id=FEDFUNDS",
+        "rates_cache.csv",
+        "FEDFUNDS",
+    )
+
         cpi.to_csv("cpi_cache.csv", index=False)
         rates.to_csv("rates_cache.csv", index=False)
     
