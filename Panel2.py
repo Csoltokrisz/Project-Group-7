@@ -37,7 +37,7 @@ for serio, series_id in series.items():
 #Creating dataframe from the data
 heatdata = pd.DataFrame(series_data)
 heatdata.index.name = "Year"
-heatdata = heatdata.loc[(heatdata.index >= 1995) & (heatdata.index <= 2025)]
+heatdata = heatdata.loc[(heatdata.index >= 2000) & (heatdata.index <= 2025)]
 
 
 #Creating heatmap
@@ -61,12 +61,13 @@ def heatmaptext(mask):
 
 
 #Frames
-years = list(range(1995, 2026))
+years = list(range(2000, 2026))
 frames = []
 
 for end_year in years:
         corr = heatdata.loc[heatdata.index <= end_year].corr(numeric_only=True)
         masked_values = masking(corr)
+        hasheat = np.isfinite(masked_values).any()
         frames.append(go.Frame(
               name=str(end_year),
               data=[go.Heatmap(
@@ -82,9 +83,13 @@ for end_year in years:
                     colorbar={"title": "Correlation"},
                     hovertemplate="%{y} - %{x}<br>Correlation: %{z:.3f}<extra></extra>", 
               )],
-              layout={"title": f"Correlation Heatmap - {end_year}"}
+              layout={"title": f"Correlation Heatmap - {end_year}",
+                      "annotations": [{
+                            "text": f"No heatmap to display for {end_year}",
+                            "showarrow": False,
+                            "visible": not hasheat
+                      }]}
         ))
-
 
 #Starting heatmap
 startingcorr = heatdata.corr(numeric_only=True)
@@ -108,18 +113,28 @@ heat = go.Heatmap(
 #Layout
 layout = go.Layout(title="Correlation Heatmap - 2025",
                 xaxis_showgrid=False, 
+                xaxis_tickangle=-45,
+                xaxis_automargin=True,
                 yaxis_showgrid=False, 
-                yaxis_autorange="reversed")
+                yaxis_autorange="reversed",
+                )
 
 
 #Heatmap itself
 def buildfig2():
+     
       heatmap = go.Figure(data=[heat], layout=layout, frames=frames)
+      
       heatmap.update_layout(
             sliders=[{
                   "active": len(years) - 1,
                   "currentvalue": {"prefix": "Correlation Through Year "},
                   "pad": {"t": 100},
+                  "y": -0.35,
+                  "x": 0.5,
+                  "xanchor": "center",
+                  "len": 500,
+                  "lenmode": "pixels",
                   "steps": [{
                         "label": str(year),
                         "method": "animate",
@@ -134,6 +149,7 @@ def buildfig2():
             }],
             plot_bgcolor="rgba(0,0,0,0)",
       )
+      
       return heatmap
 
 if __name__ == "__main__":

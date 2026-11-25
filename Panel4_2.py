@@ -1,5 +1,6 @@
 import requests
 import plotly.graph_objects as go
+import os
 from dash import Dash, dcc, html, Input, Output, ctx, no_update, callback
 
 API_KEY = os.environ.get("FRED_API_KEY")
