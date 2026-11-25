@@ -2,6 +2,11 @@ import requests
 import plotly.graph_objects as go
 from dash import Dash, dcc, html, Input, Output, ctx, no_update
 
+import os
+import requests
+import plotly.graph_objects as go
+from dash import Dash, dcc, html, Input, Output, ctx, no_update
+
 API_KEY = os.environ.get("FRED_API_KEY")
 if not API_KEY:
     raise RuntimeError("Missing FRED_API_KEY environment variable.")
