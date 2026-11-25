@@ -78,10 +78,11 @@ for end_year in years:
                     zmin=-1,
                     zmax=1,
                     zmid=0,
+                    colorscale="RdYlGn",
                     colorbar={"title": "Correlation"},
                     hovertemplate="%{y} - %{x}<br>Correlation: %{z:.3f}<extra></extra>", 
               )],
-              layout={"title": f"Correlation Through Year {end_year}"}
+              layout={"title": f"Correlation Heatmap - {end_year}"}
         ))
 
 
@@ -97,6 +98,7 @@ heat = go.Heatmap(
         zmin=-1,
         zmax=1,
         zmid=0, 
+        colorscale="RdYlGn",
         colorbar={"title": "Correlation"},
         hovertemplate="%{y} - %{x}<br>Correlation: %{z:.3f}<extra></extra>", 
         hoverongaps=False
@@ -104,37 +106,38 @@ heat = go.Heatmap(
 
 
 #Layout
-layout = go.Layout(title="Correlation Through Year 2025",
+layout = go.Layout(title="Correlation Heatmap - 2025",
                 xaxis_showgrid=False, 
                 yaxis_showgrid=False, 
                 yaxis_autorange="reversed")
 
 
 #Heatmap itself
-heatmap = go.Figure(data=[heat], layout=layout, frames=frames)
+def buildfig2():
+      heatmap = go.Figure(data=[heat], layout=layout, frames=frames)
+      heatmap.update_layout(
+            sliders=[{
+                  "active": len(years) - 1,
+                  "currentvalue": {"prefix": "Correlation Through Year "},
+                  "pad": {"t": 100},
+                  "steps": [{
+                        "label": str(year),
+                        "method": "animate",
+                        "args": [[str(year)], {
+                                    "mode": "immediate",
+                                    "frame": {"duration": 0, "redraw": True},
+                                    "transition": {"duration": 0},
+                              }],
+                              }
+                        for year in years
+                  ],
+            }],
+            plot_bgcolor="rgba(0,0,0,0)",
+      )
+      return heatmap
 
+if __name__ == "__main__":
+      buildfig2().show()
 
-#Updating heatmap
-heatmap.update_layout(
-      sliders=[{
-            "active": len(years) - 1,
-            "currentvalue": {"prefix": "Correlation Through Year "},
-            "pad": {"t": 100},
-            "steps": [{
-                  "label": str(year),
-                  "method": "animate",
-                  "args": [[str(year)], {
-                                "mode": "immediate",
-                                "frame": {"duration": 0, "redraw": True},
-                                "transition": {"duration": 0},
-                        }],
-                        }
-                  for year in years
-            ],
-        }],
-        plot_bgcolor="rgba(0,0,0,0)",
-)
-
-heatmap.show()
 
 # %%

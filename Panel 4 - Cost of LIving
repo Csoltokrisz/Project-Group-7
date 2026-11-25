@@ -170,3 +170,152 @@ h1{font-size:22px;margin:0 0 4px}
 .stat b{font-size:19px}
 .small{color:#6b6a64;font-size:12.5px;margin-top:14px}
 """
+app = Dash(__name__, title="US Cost of Living")
+app.index_string = (
+    "<!DOCTYPE html><html><head>{%metas%}<title>{%title%}</title>{%favicon%}{%css%}"
+    "<style>" + STYLE + "</style></head><body>{%app_entry%}"
+    "<footer>{%config%}{%scripts%}{%renderer%}</footer></body></html>"
+)
+
+app.layout = html.Div(className="panel", children=[
+    html.H1(f"US cost of living, {FIRST}-{LAST}"),
+    html.P("Housing, food and fuel price changes. Scroll on the chart to zoom, drag to pan.",
+           className="sub"),
+
+    html.Div(className="row", children=[
+        dcc.RadioItems(id="cat", value="housing", className="seg big", options=[
+            {"label": "Housing", "value": "housing"},
+            {"label": "Food", "value": "food"},
+            {"label": "Fuel", "value": "fuel"},
+        ]),
+        html.Div(className="grow"),
+        dcc.RadioItems(id="kind", value="line", className="seg", options=[
+            {"label": "Line", "value": "line"},
+            {"label": "Bar", "value": "bar"},
+        ]),
+    ]),
+
+    html.Div(className="row", children=[
+        html.Div([html.Button(p[2], id=pid, n_clicks=0, className="btn", style={"marginRight": "6px"})
+                  for pid, p in PRESETS.items()]),
+        dcc.RadioItems(id="mode", value="raw", className="seg", options=[
+            {"label": "Actual values", "value": "raw"},
+            {"label": "% change", "value": "pct"},
+        ]),
+        dcc.Checklist(id="compare", options=[{"label": " Compare all three", "value": "yes"}], value=[]),
+    ]),
+
+    html.Div(id="stats", className="stats"),
+    dcc.Graph(id="chart", config={"scrollZoom": True, "displaylogo": False}),
+
+    html.Div(style={"padding": "28px 10px 0"}, children=[
+        dcc.RangeSlider(id="range", min=FIRST, max=LAST, step=1, value=[FIRST, LAST],
+                        pushable=2, allowCross=False,
+                        marks={y: str(y) for y in range(FIRST, LAST + 1, 5)},
+                        tooltip={"placement": "top", "always_visible": True}),
+    ]),
+
+    html.Div(className="row", style={"marginTop": "18px"}, children=[
+        html.Button("+ Zoom in", id="zoom-in", n_clicks=0, className="btn"),
+        html.Button("- Zoom out", id="zoom-out", n_clicks=0, className="btn"),
+        html.Button("< Pan", id="pan-left", n_clicks=0, className="btn"),
+        html.Button("Pan >", id="pan-right", n_clicks=0, className="btn"),
+        html.Button("Reset", id="reset", n_clicks=0, className="btn"),
+        html.Div(className="grow"),
+        html.Button("Export CSV", id="export", n_clicks=0, className="btn"),
+        dcc.Download(id="download"),
+    ]),
+
+    html.P(id="text"),
+    html.P("Data: Federal Reserve Bank of St. Louis (FRED). Yearly values are averages of the "
+           "monthly/weekly data, so the most recent year may be incomplete. Series: "
+           + ", ".join(s["id"] for s in SERIES.values()) + ".", className="small"),
+])
+
+
+@app.callback(
+    Output("range", "value"),
+    [Input(pid, "n_clicks") for pid in PRESETS],
+    Input("zoom-in", "n_clicks"), Input("zoom-out", "n_clicks"),
+    Input("pan-left", "n_clicks"), Input("pan-right", "n_clicks"),
+    Input("reset", "n_clicks"),
+    Input("range", "value"), Input("chart", "relayoutData"),
+    prevent_initial_call=True,
+)
+def change_range(*args):
+    current = args[-2]
+    relayout = args[-1]
+    start, end = current
+    width = end - start
+    trigger = ctx.triggered_id
+
+    if trigger in PRESETS:
+        start, end = PRESETS[trigger][0], PRESETS[trigger][1]
+    elif trigger in ("zoom-in", "zoom-out"):
+        middle = (start + end) / 2
+        factor = 0.6 if trigger == "zoom-in" else 1 / 0.6
+        half = width / 2 * factor
+        start, end = round(middle - half), round(middle + half)
+    elif trigger in ("pan-left", "pan-right"):
+        step = max(1, round(width / 4))
+        if trigger == "pan-left":
+            step = -step
+        start, end = start + step, end + step
+        if start < FIRST:
+            start, end = FIRST, FIRST + width
+        if end > LAST:
+            start, end = LAST - width, LAST
+    elif trigger == "reset":
+        start, end = FIRST, LAST
+    elif trigger == "chart":
+        # the user zoomed or panned directly on the chart
+        relayout = relayout or {}
+        if "xaxis.range[0]" in relayout and "xaxis.range[1]" in relayout:
+            start = round(relayout["xaxis.range[0]"])
+            end = round(relayout["xaxis.range[1]"])
+        elif relayout.get("xaxis.autorange"):
+            start, end = FIRST, LAST
+        else:
+            return no_update
+
+    # keep the window inside the data and at least 3 years wide
+    start = max(FIRST, start)
+    end = min(LAST, end)
+    if end - start < 2:
+        end = min(LAST, start + 2)
+        start = end - 2
+
+    if [start, end] == list(current):
+        return no_update
+    return [start, end]
+
+
+@app.callback(
+    Output("chart", "figure"), Output("stats", "children"), Output("text", "children"),
+    Input("range", "value"), Input("cat", "value"), Input("mode", "value"),
+    Input("kind", "value"), Input("compare", "value"),
+)
+def update_chart(year_range, cat, mode, kind, compare):
+    start, end = year_range
+    fig = make_figure(cat, mode, kind, bool(compare), start, end)
+    return fig, make_stats(cat, start, end), SERIES[cat]["text"]
+
+
+@app.callback(
+    Output("download", "data"),
+    Input("export", "n_clicks"), Input("range", "value"),
+    prevent_initial_call=True,
+)
+def export_csv(n_clicks, year_range):
+    if ctx.triggered_id != "export":
+        return no_update
+    start, end = year_range
+    rows = ["Year,Housing index,Food index,Fuel $/gal"]
+    for year in range(start, end + 1):
+        i = year - FIRST
+        rows.append(f"{year},{values['housing'][i]},{values['food'][i]},{values['fuel'][i]}")
+    return {"content": "\n".join(rows) + "\n", "filename": "cost-of-living.csv"}
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
