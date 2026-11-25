@@ -56,9 +56,9 @@ from plotly.subplots import make_subplots
 def make_plot(df):
     fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.08,
                         subplot_titles=("<b>Inflation Rate (%)</b>", "<b>Interest Rate (%)</b>"))
-
     for i, yr in enumerate(range(1995, 2026)):
-        c = "rgba(180, 155, 130, 0.10)" if i % 2 == 0 else "rgba(180, 155, 130, 0.03)"
+        c = "rgba(11, 31, 58, 0.05)" if i % 2 == 0 else "rgba(11, 31, 58, 0.015)"
+
         fig.add_vrect(x0=yr - 0.5, x1=yr + 0.5, fillcolor=c, line_width=0, layer="below", row=1, col=1)
         fig.add_vrect(x0=yr - 0.5, x1=yr + 0.5, fillcolor=c, line_width=0, layer="below", row=2, col=1)
 
@@ -106,13 +106,13 @@ def make_plot(df):
     ]
     fig.update_layout(
         title="<b>Inflation and Interest Rates (1995-2025)</b>",
-        margin=dict(l=175, t=90),
+        margin=dict(l=230, t=100),
         plot_bgcolor="#FAF0E6",
         paper_bgcolor="#FFF8F0",
         font=dict(color="#1F2933"),
         hovermode="x unified",
         xaxis2=dict(range=[1995, 2025], dtick=2, rangeslider=dict(visible=True, range=[1995, 2025], bgcolor="#FAF0E6")),
-        updatemenus=[dict(type="buttons", direction="down", x=-0.16, y=1.0, xanchor="left", yanchor="top",
+        updatemenus=[dict(type="buttons", direction="down", x=-0.23, y=1.0, xanchor="left", yanchor="top",
                           bgcolor="#F2E5D7", bordercolor="#8C7A6B", font=dict(color="#1F2933"))],
     )
 
