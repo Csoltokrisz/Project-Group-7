@@ -3,18 +3,17 @@ import pandas as pd
 def load_series(url,cache_path, col):
     try:
         df = pd.read_csv(url)
-        if not df.empty and {"observation date", col}.issubset(df.columns):
+        if not df.empty and {"observation_date", col}.issubset(df.columns):
             try:
                 df.to_csv(cache_path, index=False)
             except OSError:
                 pass
-                return df
-            except Exception:
+        return df
+    except Exception:
                 return pd.read_csv(cache_path)
 
 def get_economic_data():
-    try:
-            cpi = load_series(
+cpi = load_series(
         "https://fred.stlouisfed.org/graph/fredgraph.csv?id=CPIAUCSL",
         "cpi_cache.csv",
         "CPIAUCSL",
@@ -24,10 +23,6 @@ def get_economic_data():
         "rates_cache.csv",
         "FEDFUNDS",
     )
-
-        cpi.to_csv("cpi_cache.csv", index=False)
-        rates.to_csv("rates_cache.csv", index=False)
-    
     
     cpi['observation_date'] = pd.to_datetime(cpi['observation_date'],errors='coerce')
     rates['observation_date'] = pd.to_datetime(rates['observation_date'],errors='coerce')
