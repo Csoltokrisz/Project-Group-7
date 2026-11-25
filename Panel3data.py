@@ -105,20 +105,49 @@ def make_plot(df):
         dict(label="All", method="relayout", args=[{f"shapes[{base + k}].visible": True for k in range(len(bands))}]),
     ]
     fig.update_layout(
-        title="<b>Inflation and Interest Rates (1995-2025)</b>",
-        margin=dict(l=230, t=100),
-        plot_bgcolor="#FAF0E6",
-        paper_bgcolor="#FFF8F0",
-        font=dict(color="#1F2933"),
+        title=dict(
+            text="<b>Inflation and Interest Rates (1995-2025)</b>",
+            font=dict(color="#0B1F3A", size=20),
+        ),
+        margin=dict(l=70, t=70, b=115),
+        plot_bgcolor="#FFFFFF",
+        paper_bgcolor="#FFFFFF",
+        font=dict(color="#0B1F3A"),
         hovermode="x unified",
-        xaxis2=dict(range=[1995, 2025], dtick=2, rangeslider=dict(visible=True, range=[1995, 2025], bgcolor="#FAF0E6")),
-        updatemenus=[dict(type="buttons", direction="down", x=-0.23, y=1.0, xanchor="left", yanchor="top",
-                          bgcolor="#F2E5D7", bordercolor="#8C7A6B", font=dict(color="#1F2933"))],
+        xaxis2=dict(
+            range=[1995, 2025],
+            dtick=2,
+            rangeslider=dict(
+                visible=True,
+                range=[1995, 2025],
+                thickness=0.035,
+                bgcolor="#F4F6F9",
+                bordercolor="#9FB3C8",
+            ),
+        ),
+        updatemenus=[
+            dict(
+                type="buttons",
+                direction="right",
+                x=0,
+                y=-0.18,
+                xanchor="left",
+                yanchor="top",
+                buttons=btns,
+                bgcolor="#F4F6F9",
+                bordercolor="#9FB3C8",
+                font=dict(color="#0B1F3A"),
+            )
+        ],
     )
 
-    fig.update_yaxes(title_text="%", row=1, col=1, gridcolor="#E2D6C8")
-    fig.update_yaxes(title_text="%", row=2, col=1, gridcolor="#E2D6C8")
-    fig.update_xaxes(gridcolor="#E2D6C8")
+
+    for ann in fig.layout.annotations:
+        ann.font = dict(color="#0B1F3A")
+
+    fig.update_yaxes(title_text="%", dtick=1, row=1, col=1, gridcolor="#E4E9F0")
+    fig.update_yaxes(title_text="%", dtick=1, row=2, col=1, gridcolor="#E4E9F0")
+    fig.update_xaxes(gridcolor="#E4E9F0")
 
     return fig
 
