@@ -106,6 +106,7 @@ def make_plot(df):
     ]
     fig.update_layout(
         title="<b>Inflation and Interest Rates (1995-2025)</b>",
+        margin=dict(t=130),
         plot_bgcolor="#FAF0E6",
         paper_bgcolor="#FFF8F0",
         font=dict(color="#1F2933"),
