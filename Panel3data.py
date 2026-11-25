@@ -106,13 +106,13 @@ def make_plot(df):
     ]
     fig.update_layout(
         title="<b>Inflation and Interest Rates (1995-2025)</b>",
-        margin=dict(t=130),
+        margin=dict(t=140),
         plot_bgcolor="#FAF0E6",
         paper_bgcolor="#FFF8F0",
         font=dict(color="#1F2933"),
         hovermode="x unified",
         xaxis2=dict(range=[1995, 2025], dtick=2, rangeslider=dict(visible=True, range=[1995, 2025], bgcolor="#FAF0E6")),
-        updatemenus=[dict(type="buttons", direction="right", x=0, y=1.15, xanchor="left", buttons=btns,
+        updatemenus=[dict(type="buttons", direction="right", x=0, y=1.12, xanchor="left", yanchor="bottom",,
                           bgcolor="#F2E5D7", bordercolor="#8C7A6B", font=dict(color="#1F2933"))],
     )
 
