@@ -64,11 +64,14 @@ def make_plot(df):
 
     fig.add_trace(go.Scatter(x=df['Year'], y=df['Inflation Rate (%)'], mode='lines+markers',
                              name='Inflation Rate (%)', line=dict(color='#9E2A2B', width=2.5),
-                             marker=dict(color='#6B1819', size=6)), row=1, col=1)
+                             marker=dict(color='#6B1819', size=6), showlegend=False,
+                             hovertemplate="Inflation: %{y:.2f}%<extra></extra>"), row=1, col=1)
 
     fig.add_trace(go.Scatter(x=df['Year'], y=df['Interest Rate (%)'], mode='lines+markers',
                              name='Interest Rate (%)', line=dict(color='#1D4E89', width=2.5),
-                             marker=dict(color='#102A43', size=6)), row=2, col=1)
+                             marker=dict(color='#102A43', size=6), showlegend=False,
+                             hovertemplate="Interest Rate: %{y:.2f}%<extra></extra>"), row=2, col=1)
+
 
     bands = [
         # 0: Financial Crash (Great Recession: Dec 2007 – Jun 2009)
@@ -89,6 +92,9 @@ def make_plot(df):
         # 5: Emergency Economic Stabilization Act / TARP (Oct 2008)
         dict(type="rect", xref="x", yref="paper", x0=2008.7, x1=2009.0, y0=0, y1=1,
              fillcolor="rgba(16, 42, 67, 0.28)", line=dict(color="#102A43", width=2), visible=False),
+        # 6: Ukraine War (Feb 2022 – 2025)
+        dict(type="rect", xref="x", yref="paper", x0=2022.15, x1=2025.0, y0=0, y1=1,
+             fillcolor="rgba(37, 99, 235, 0.14)", line=dict(color="#1E40AF", width=1.2, dash="dashdot"), visible=False),
     ]
 
     base = len(fig.layout.shapes)
@@ -102,6 +108,7 @@ def make_plot(df):
         dict(label="9/11", method="relayout", args=[{f"shapes[{base + 3}].visible": True}]),
         dict(label="COVID", method="relayout", args=[{f"shapes[{base + 4}].visible": True}]),
         dict(label="TARP (Oct 2008)", method="relayout", args=[{f"shapes[{base + 5}].visible": True}]),
+        dict(label="Ukraine War", method="relayout", args=[{f"shapes[{base + 6}].visible": True}]),
         dict(label="All", method="relayout", args=[{f"shapes[{base + k}].visible": True for k in range(len(bands))}]),
     ]
     fig.update_layout(
@@ -143,14 +150,20 @@ def make_plot(df):
 
 
     for ann in fig.layout.annotations:
-        ann.font = dict(color="#0B1F3A")
+        ann.update(
+            font=dict(family="Arial, sans-serif", color="#0B1F3A", size=13),
+            bgcolor="#F8FAFC",
+            bordercolor="#CBD5E1",
+            borderwidth=1,
+            borderpad=4,
+        )
 
-    fig.update_yaxes(title_text="%", dtick=1, row=1, col=1, gridcolor="#E4E9F0")
-    fig.update_yaxes(title_text="%", dtick=1, row=2, col=1, gridcolor="#E4E9F0")
-    fig.update_xaxes(gridcolor="#E4E9F0")
+    fig.update_yaxes(title_text="%", dtick=1, gridcolor="#E4E9F0",
+                     zeroline=True, zerolinecolor="#CBD5E1", zerolinewidth=1, row=1, col=1)
+    fig.update_yaxes(title_text="%", dtick=1, gridcolor="#E4E9F0",
+                     zeroline=True, zerolinecolor="#CBD5E1", zerolinewidth=1, row=2, col=1)
 
     return fig
-
 
 df = get_economic_data()
 fig = make_plot(df)
