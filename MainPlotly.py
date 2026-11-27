@@ -1,8 +1,8 @@
 from dash import Dash, dcc, html
-#from Panel1 import buildfig1
+#from panel_1_revised import get_panel_map
 from Panel2 import buildfig2
-#from Panel3 import buildfig3
-#from Panel4_2 import get_panel_4
+from panel_3_copy import get_panel_3
+from Panel4_2 import get_panel_4
 
 
 #Test ------------------------- delete
@@ -23,10 +23,10 @@ app.layout = html.Div([
             style={"paddingLeft": "20px"}),
     html.Div(style=grid_style,
              children=[
-                 dcc.Graph(id="graph-1", figure=buildfig2(), responsive=True),
+                 dcc.Graph(id="asd", figure=buildfig2(), responsive=True, style={"width": "100%", "height": "100%"}),
                  dcc.Graph(id="heatmap", figure=buildfig2(), responsive=True, style={"width": "100%", "height": "100%"}),
-                 dcc.Graph(id="graph-3", figure=buildfig2(), responsive=True),
-                 dcc.Graph(id="graph-4", figure=buildfig2(), responsive=True),
+                 dcc.Graph(id="asdf", figure=buildfig2(), responsive=True, style={"width": "100%", "height": "100%"}),
+                 get_panel_4(),
              ],),
 ])
 

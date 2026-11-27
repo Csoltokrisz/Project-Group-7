@@ -63,11 +63,17 @@ def heatmaptext(mask):
 #Frames
 years = list(range(2000, 2026))
 frames = []
+slider_years = []
+has_graph_year = False
 
 for end_year in years:
         corr = heatdata.loc[heatdata.index <= end_year].corr(numeric_only=True)
         masked_values = masking(corr)
         hasheat = np.isfinite(masked_values).any()
+        if not hasheat and not has_graph_year:
+              continue
+        slider_years.append(end_year)
+        has_graph_year = has_graph_year or hasheat
         frames.append(go.Frame(
               name=str(end_year),
               data=[go.Heatmap(
@@ -87,6 +93,12 @@ for end_year in years:
                       "annotations": [{
                             "text": f"No heatmap to display for {end_year}",
                             "showarrow": False,
+                            "xref": "paper",
+                            "yref": "paper",
+                            "x": 0.5,
+                            "y": 0.5,
+                            "xanchor": "center",
+                            "yanchor": "middle",
                             "visible": not hasheat
                       }]}
         ))
@@ -127,7 +139,7 @@ def buildfig2():
       
       heatmap.update_layout(
             sliders=[{
-                  "active": len(years) - 1,
+                  "active": len(slider_years) - 1,
                   "currentvalue": {"prefix": "Correlation Through Year "},
                   "pad": {"t": 100},
                   "y": -0.35,
@@ -144,7 +156,7 @@ def buildfig2():
                                     "transition": {"duration": 0},
                               }],
                               }
-                        for year in years
+                        for year in slider_years
                   ],
             }],
             plot_bgcolor="rgba(0,0,0,0)",
