@@ -1,0 +1,5 @@
+dash>=3,<5
+plotly>=6,<8
+pandas>=2.2,<4
+numpy>=1.26,<3
+requests>=2.31,<3
