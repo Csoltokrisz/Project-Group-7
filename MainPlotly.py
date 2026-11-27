@@ -1,7 +1,7 @@
 from dash import Dash, dcc, html
 #from panel_1_revised import get_panel_map
 from Panel2 import buildfig2
-from panel_3_copy import get_panel_3
+from panel_3 import get_panel_3
 from Panel4_2 import get_panel_4
 
 app = Dash()
