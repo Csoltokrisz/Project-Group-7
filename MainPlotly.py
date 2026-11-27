@@ -4,11 +4,6 @@ from Panel2 import buildfig2
 from panel_3_copy import get_panel_3
 from Panel4_2 import get_panel_4
 
-
-#Test ------------------------- delete
-#buildfig2().show()
-
-
 app = Dash()
 
 grid_style = {
